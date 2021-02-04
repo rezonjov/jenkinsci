@@ -16,6 +16,12 @@ pipeline {
             }
         }
 
+        stage('Sanity check') {
+            steps {
+                input "Does the staging environment look ok?"
+            }
+        }
+        
         stage('Build') {
             steps {
                 echo "Database engine is ${DB_ENGINE}"
@@ -30,6 +36,12 @@ pipeline {
         }
         success {
             echo 'This will run only if successful'
+            slackSend channel: '#general',
+                color: 'good',
+                message: "The pipeline ${currentBuild.fullDisplayName} completed successfully."
+            mail to: 'rezonjov@gmail.com',
+                subject: "Success Pipeline: ${currentBuild.fullDisplayName}",
+                body: "Something is really good with ${env.BUILD_URL}"
         }
         failure {
             echo 'This will run only if failed'
